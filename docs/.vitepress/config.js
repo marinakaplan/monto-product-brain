@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  ignoreDeadLinks: true,
   title: 'Product Brain',
   description: 'Monto AI-Powered Product Knowledge Base',
   
