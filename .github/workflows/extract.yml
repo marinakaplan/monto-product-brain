@@ -36,7 +36,7 @@ jobs:
         if: github.event.inputs.platform != 'backoffice' || github.event_name == 'schedule'
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/user-platform
+          repository: Marinkayam/monto-backoffice
           path: ./temp/user-platform
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
       
