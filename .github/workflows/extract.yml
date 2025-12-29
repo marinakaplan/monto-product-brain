@@ -1,0 +1,72 @@
+name: Extract Codebase
+
+on:
+  # Triggered by webhook from code repos
+  repository_dispatch:
+    types: [code-updated]
+  
+  # Weekly full extraction
+  schedule:
+    - cron: '0 0 * * 0' # Every Sunday at midnight
+  
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to extract'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - user-platform
+          - backoffice
+          - both
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout brain repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Checkout user-platform
+        if: github.event.inputs.platform != 'backoffice' || github.event_name == 'schedule'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/user-platform
+          path: ./temp/user-platform
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      
+      - name: Checkout backoffice
+        if: github.event.inputs.platform != 'user-platform' || github.event_name == 'schedule'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/backoffice
+          path: ./temp/backoffice
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run extraction
+        run: npm run extract
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PLATFORM: ${{ github.event.inputs.platform || 'both' }}
+      
+      - name: Commit updates
+        run: |
+          git config --global user.name 'Product Brain Bot'
+          git config --global user.email 'bot@monto.com'
+          git add docs/
+          git diff --staged --quiet || git commit -m "🤖 Auto-update: Extraction $(date +'%Y-%m-%d %H:%M')"
+          git push

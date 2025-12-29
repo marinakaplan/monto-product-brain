@@ -1,0 +1,27 @@
+{
+  "name": "monto-product-brain",
+  "version": "1.0.0",
+  "description": "AI-powered product knowledge base for Monto",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "extract": "node scripts/extract.js",
+    "analyze": "node scripts/analyze.js",
+    "suggest": "node scripts/suggest.js"
+  },
+  "keywords": [
+    "documentation",
+    "product-brain",
+    "monto"
+  ],
+  "author": "Monto",
+  "license": "PRIVATE",
+  "devDependencies": {
+    "vitepress": "^1.5.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0"
+  }
+}
